@@ -16,6 +16,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+ 
+ 
+var posStart;
+var posEnd;
 var app = {
     // Application Constructor
     initialize: function() {
@@ -35,7 +39,8 @@ var app = {
     onDeviceReady: function() {
         //FOR MY OWN CODE
 		$("#target").bind("tap",app.tapHandler);
-		$("#Kamera").bind("tap",app.tapCamera);
+		$("#Stop").bind("tap",app.tapStop);
+		$("#Position").bind("tap",app.tapPosition);
 		
 		
     },
@@ -45,10 +50,18 @@ var app = {
 			alert("Hallo");
 	},
 	
-	tapCamera:function(event){
+	tapStop:function(event){
 		navigator.camera.getPicture(onSuccess, onFail, { quality: 50,
 		destinationType: Camera.DestinationType.DATA_URL
 		});
+		navigator.geolocation.getCurrentPosition(onSuccessEnd, onError);
+		alert("Stop");
+	},
+	
+	tapPosition:function(event){
+		
+		navigator.geolocation.getCurrentPosition(onSuccessPos, onError);
+		alert("Start");
 	}
 	
 	
@@ -61,6 +74,53 @@ var app = {
 	function onFail(message) {
     alert('Failed because: ' + message);
 	}
+	
+	function distance(lat1, lon1, lat2, lon2) {
+	if ((lat1 == lat2) && (lon1 == lon2)) {
+		return 0;
+	}
+	else {
+		var radlat1 = Math.PI * lat1/180;
+		var radlat2 = Math.PI * lat2/180;
+		var theta = lon1-lon2;
+		var radtheta = Math.PI * theta/180;
+		var dist = Math.sin(radlat1) * Math.sin(radlat2) + Math.cos(radlat1) * Math.cos(radlat2) * Math.cos(radtheta);
+		if (dist > 1) {
+			dist = 1;
+		}
+		dist = Math.acos(dist);
+		dist = dist * 180/Math.PI;
+		dist = dist * 60 * 1.1515;
+		dist = dist * 1.609344 
+		
+		return dist;
+	}
+}
+	
+	
+	
+	function onSuccessPos(position) {
+    /*alert('Latitude: '          + position.coords.latitude          + '\n' +
+          'Longitude: '         + position.coords.longitude         + '\n' +
+          'Altitude: '          + position.coords.altitude          + '\n' +
+          'Accuracy: '          + position.coords.accuracy          + '\n' +
+          'Altitude Accuracy: ' + position.coords.altitudeAccuracy  + '\n' +
+          'Heading: '           + position.coords.heading           + '\n' +
+          'Speed: '             + position.coords.speed             + '\n' +
+          'Timestamp: '         + position.timestamp                + '\n');*/
+		posStart=position;
+		  
+}
+
+function onSuccessEnd(position) {
+   
+	posEnd=position;  
+}
+
+function onError(error) {
+    alert('Failed because: ' + error.message);
+	}
+
 /*
 $(function() {
 $("#target").bind("tap",tapHandler);
