@@ -40,8 +40,12 @@
 
     <!-- <link rel="stylesheet" type="text/css" href="css/index.css" /> -->
 	<link rel="stylesheet" href="css/jquery.mobile-1.4.5.min.css" />
+	<link rel="stylesheet" href="css/index.css">
 	<script src="js/jquery-1.11.1.min.js"></script>
 	<script src="js/jquery.mobile-1.4.5.min.js"></script>
+	
+	<script async defer src="https://maps.googleapis.com/maps/api/js?"
+  type="text/javascript"></script>
     <title>Hello World</title>
 </head>
 
@@ -57,7 +61,12 @@
 		<p>I'm first in the source order so I'm shown as the page.</p>
 		<p>View internal page called <a href="#bar">bar</a></p>
 		
+		
 	</div><!-- /content -->
+	
+	<div id="map_canvas">
+
+	</div>
 
 	<div data-role="footer">
 		<a href="#bar">Seite 2</a>
@@ -65,6 +74,9 @@
 		<button data-role="button" href="#Kamera"id="Kamera">Kamera</button>
 		<button data-role="button" href="#Position"id="Position">Start</button>
 		<button data-role="button" href="#Stop"id="Stop">Stop</button>
+		<button data-role="button" href="#Map"id="Map">Map</button>
+		
+		
 		
 	</div><!-- /footer -->
 </div><!-- /page -->

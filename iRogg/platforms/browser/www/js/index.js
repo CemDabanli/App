@@ -41,6 +41,7 @@ var app = {
 		$("#target").bind("tap",app.tapHandler);
 		$("#Stop").bind("tap",app.tapStop);
 		$("#Position").bind("tap",app.tapPosition);
+		$("#Map").bind("tap",app.tapMap);
 		
 		
     },
@@ -62,6 +63,13 @@ var app = {
 		
 		navigator.geolocation.getCurrentPosition(onSuccessPos, onError);
 		alert("Start");
+	},
+	
+	tapMap:function(event){
+		alert("Map");
+		var map = new GoogleMap();
+		map.initialize();
+		
 	}
 	
 	
@@ -120,6 +128,26 @@ function onSuccessEnd(position) {
 function onError(error) {
     alert('Failed because: ' + error.message);
 	}
+	
+function GoogleMap(){
+
+this.initialize = function(){
+var map = showMap();
+}
+
+var showMap = function(){
+var mapOptions = {
+zoom: 4,
+center: new google.maps.LatLng(-33, 151),
+mapTypeId: google.maps.MapTypeId.ROADMAP
+}
+
+var map = new google.maps.Map(document.getElementById("map_canvas"), mapOptions);
+
+return map;
+}
+}
+
 
 /*
 $(function() {
