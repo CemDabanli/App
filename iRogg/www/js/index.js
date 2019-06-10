@@ -20,6 +20,12 @@
  
 var posStart;
 var posEnd;
+var myLatlng = new google.maps.LatLng(-33, 151);
+var marker = new google.maps.Marker({
+    position: myLatlng,
+    title:"Hello World!"
+});
+
 var app = {
     // Application Constructor
     initialize: function() {
@@ -42,7 +48,7 @@ var app = {
 		$("#Stop").bind("tap",app.tapStop);
 		$("#Position").bind("tap",app.tapPosition);
 		$("#Map").bind("tap",app.tapMap);
-		
+		$("#Kamera").bind("tap",app.tapKamera);
 		
     },
 	
@@ -66,14 +72,59 @@ var app = {
 	},
 	
 	tapMap:function(event){
-		alert("Map");
-		var map = new GoogleMap();
-		map.initialize();
+		
+		/*var map = new GoogleMap();
+		map.initialize();*/
+		
+		displayMap();
+		
+	},
+	tapKamera:function(event){
+		marker.setMap(map);
+		
+		
 		
 	}
 	
 	
 };
+
+
+function displayMap()
+	{
+		var map = showMap();
+		var myLatLng = {lat: posStart.coords.latitude, lng: posStart.coords.longitude};
+		var marker = new google.maps.Marker({
+          position: myLatLng,
+          map: map,
+          title: 'Start'
+        });
+		
+		/*if(posEnd!==null){
+			var myLatLng2 = {lat: posEnd.coords.latitude, lng: posEnd.coords.longitude};
+			var marker2 = new google.maps.Marker({
+          position: myLatLng2,
+          map: map,
+          title: 'Stop'
+        });
+		}*/
+		
+		return map;
+	}
+	
+	function showMap()
+	 {
+		var mapOptions = 
+		{
+		zoom: 15,
+		center: new google.maps.LatLng(posStart.coords.latitude,posStart.coords.longitude ),
+		mapTypeId: google.maps.MapTypeId.ROADMAP
+		}
+	var map = new google.maps.Map(document.getElementById("map_canvas"), mapOptions);
+	return map;
+	}
+
+
 	function onSuccess(imageData) {
     var image = document.getElementById('myImage');
     image.src = "data:image/jpeg;base64," + imageData;
@@ -133,6 +184,7 @@ function GoogleMap(){
 
 this.initialize = function(){
 var map = showMap();
+
 }
 
 var showMap = function(){
