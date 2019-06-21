@@ -17,38 +17,37 @@
  * under the License.
  */
  
+
+ var directionsDisplay= new google.maps.DirectionsRenderer();
+ var directionsService= new google.maps.DirectionsService();
  
-var posStart;
-var posEnd;
-var myLatlng = new google.maps.LatLng(-33, 151);
-var marker = new google.maps.Marker({
-    position: myLatlng,
-    title:"Hello World!"
-});
+var go;
+var arrayPosi=[];
+var positionGlobalStart;
+var positionGlobalEnd;
+var picture ;
+var time=null;
+//var storage = window.localStorage;
+//var keyName = window.localStorage.key(0);
+
 
 var app = {
-    // Application Constructor
+    
     initialize: function() {
         this.bindEvents();
     },
-    // Bind Event Listeners
-    //
-    // Bind any events that are required on startup. Common events are:
-    // 'load', 'deviceready', 'offline', and 'online'.
+    
     bindEvents: function() {
         document.addEventListener('deviceready', this.onDeviceReady, false);
     },
-    // deviceready Event Handler
-    //
-    // The scope of 'this' is the event. In order to call the 'receivedEvent'
-    // function, we must explicitly call 'app.receivedEvent(...);'
+
     onDeviceReady: function() {
         //FOR MY OWN CODE
 		$("#target").bind("tap",app.tapHandler);
 		$("#Stop").bind("tap",app.tapStop);
-		$("#Position").bind("tap",app.tapPosition);
-		$("#Map").bind("tap",app.tapMap);
-		$("#Kamera").bind("tap",app.tapKamera);
+		$("#Start").bind("tap",app.tapStart);
+		$("#Speichern").bind("tap",app.tapSpeichern);
+		
 		
     },
 	
@@ -58,58 +57,123 @@ var app = {
 	},
 	
 	tapStop:function(event){
-		navigator.camera.getPicture(onSuccess, onFail, { quality: 50,
-		destinationType: Camera.DestinationType.DATA_URL
-		});
+		go=false;
+		/*alert("REAL "+arrayPosi.length);
+		
 		navigator.geolocation.getCurrentPosition(onSuccessEnd, onError);
-		alert("Stop");
+		document.getElementById("Speichern").setAttribute("style","visibility:visible");*/
+		navigator.camera.getPicture(onSuccess, onFail, { quality: 50,
+		destinationType: Camera.DestinationType.DATA_URL,
+		targetWidth:55,
+		targetHeight:55
+		});
+		
+		var time2 =new Date();
+		time2=(time2.getTime()-time.getTime())/60000;
+		
+		
+		var sek = (time2*60)%60;
+		var min = time2 - sek/60;
+		sek = sek - sek%1;
+		if(sek<10)
+		{
+			alert(min+":0"+sek);
+			time=min+":0"+sek;
+		}
+		else
+		{
+			alert(min+":"+sek);
+			time=min+":"+sek;
+		}
+		
+		
 	},
 	
-	tapPosition:function(event){
+	tapStart:function(event)
+	{
+		deleteArray();
+		navigator.geolocation.getCurrentPosition(onSuccessStart, onError);
+		document.getElementById("Stop").setAttribute("style","visibility:visible");
+		document.getElementById("Speichern").setAttribute("style","visibility:hidden");
+		time =new Date();
 		
-		navigator.geolocation.getCurrentPosition(onSuccessPos, onError);
-		alert("Start");
+		
 	},
 	
-	tapMap:function(event){
-		
-		/*var map = new GoogleMap();
-		map.initialize();*/
-		
-		displayMap();
-		
-	},
-	tapKamera:function(event){
-		marker.setMap(map);
-		
-		
-		
+	tapSpeichern:function(event)
+	{ 
+		//navigator.geolocation.getCurrentPosition(add, onError);
+		//window.localStorage.setItem(keyName, time);
+		//alert("Gespeichert: "+window.localStorage.getItem(0);)
 	}
 	
 	
-};
+	
+	
+}
 
+/*function getDistanceFromLatLonInKm(lat1,lon1,lat2,lon2) {
+  var R = 6371; //Radius of the earth in km
+  var dLat = deg2rad(lat2-lat1);  //deg2rad below
+  var dLon = deg2rad(lon2-lon1); 
+  var a = 
+    Math.sin(dLat/2) * Math.sin(dLat/2) +
+    Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * 
+    Math.sin(dLon/2) * Math.sin(dLon/2)
+    ; 
+  var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
+  var d = R * c; //Distance in km
+  return d;
+}*/
 
-function displayMap()
+	function deleteArray()
 	{
-		var map = showMap();
-		var myLatLng = {lat: posStart.coords.latitude, lng: posStart.coords.longitude};
-		var marker = new google.maps.Marker({
-          position: myLatLng,
-          map: map,
-          title: 'Start'
-        });
+		arrayPosi=[];
+	}
+
+	function add(position)
+	{
 		
-		/*if(posEnd!==null){
-			var myLatLng2 = {lat: posEnd.coords.latitude, lng: posEnd.coords.longitude};
-			var marker2 = new google.maps.Marker({
-          position: myLatLng2,
-          map: map,
-          title: 'Stop'
-        });
-		}*/
+		var latitude=(position.coords.latitude);
+		var longitude=(position.coords.longitude);
+		console.log(latitude);
+		console.log(longitude);
 		
-		return map;
+		arrayPosi.push({location: new window.google.maps.LatLng(latitude,longitude),stopover: false});
+		/*
+		arrayPosi.push({location: new window.google.maps.LatLng(48.458390, 7.943022),stopover: false});
+		arrayPosi.push({location: new window.google.maps.LatLng(48.454073, 7.941026),stopover: false});
+		arrayPosi.push({location: new window.google.maps.LatLng(48.448679, 7.941540),stopover: false});
+		arrayPosi.push({location: new window.google.maps.LatLng(48.454554, 7.934431),stopover: false});
+		arrayPosi.push({location: new window.google.maps.LatLng(48.458390, 7.943022),stopover: false});*/
+		
+	}
+
+	function calculateRoute()
+	{
+		var request={
+		  origin: new google.maps.LatLng(positionGlobalStart.coords.latitude,  positionGlobalStart.coords.longitude),
+          destination:new google.maps.LatLng (positionGlobalEnd.coords.latitude,  positionGlobalEnd.coords.longitude),
+			
+		  
+		  //origin:"Berlin",
+		  //destination:"Paris",
+          waypoints: arrayPosi,
+          //optimizeWaypoints: true,
+          travelMode: 'WALKING'
+		  
+		 
+		};
+
+
+	directionsService.route(request,function(result, status){	
+	if(status=="OK"){
+		directionsDisplay.setDirections(result);
+	}
+	});
+
+	var map = showMap();
+	return map;
 	}
 	
 	function showMap()
@@ -117,48 +181,37 @@ function displayMap()
 		var mapOptions = 
 		{
 		zoom: 15,
-		center: new google.maps.LatLng(posStart.coords.latitude,posStart.coords.longitude ),
+		center: new google.maps.LatLng(positionGlobalStart.coords.latitude,positionGlobalStart.coords.longitude ),
 		mapTypeId: google.maps.MapTypeId.ROADMAP
 		}
+		var marker = new google.maps.Marker({
+    position: new google.maps.LatLng(positionGlobalEnd.coords.latitude,positionGlobalEnd.coords.longitude),
+    title:"Endpoint",
+	icon: picture,
+	draggable:true
+	//icon: imageEnd
+});
 	var map = new google.maps.Map(document.getElementById("map_canvas"), mapOptions);
+	directionsDisplay.setMap(map);
 	return map;
 	}
-
+	
 
 	function onSuccess(imageData) {
-    var image = document.getElementById('myImage');
-    image.src = "data:image/jpeg;base64," + imageData;
+    picture = "data:image/jpeg;base64," + imageData;
+	go=false;
+		alert("REAL "+arrayPosi.length);
+		
+		navigator.geolocation.getCurrentPosition(onSuccessEnd, onError);
+		document.getElementById("Speichern").setAttribute("style","visibility:visible");
+    
 	}
 
 	function onFail(message) {
     alert('Failed because: ' + message);
 	}
 	
-	function distance(lat1, lon1, lat2, lon2) {
-	if ((lat1 == lat2) && (lon1 == lon2)) {
-		return 0;
-	}
-	else {
-		var radlat1 = Math.PI * lat1/180;
-		var radlat2 = Math.PI * lat2/180;
-		var theta = lon1-lon2;
-		var radtheta = Math.PI * theta/180;
-		var dist = Math.sin(radlat1) * Math.sin(radlat2) + Math.cos(radlat1) * Math.cos(radlat2) * Math.cos(radtheta);
-		if (dist > 1) {
-			dist = 1;
-		}
-		dist = Math.acos(dist);
-		dist = dist * 180/Math.PI;
-		dist = dist * 60 * 1.1515;
-		dist = dist * 1.609344 
-		
-		return dist;
-	}
-}
-	
-	
-	
-	function onSuccessPos(position) {
+	function onSuccessStart(position) {
     /*alert('Latitude: '          + position.coords.latitude          + '\n' +
           'Longitude: '         + position.coords.longitude         + '\n' +
           'Altitude: '          + position.coords.altitude          + '\n' +
@@ -167,54 +220,50 @@ function displayMap()
           'Heading: '           + position.coords.heading           + '\n' +
           'Speed: '             + position.coords.speed             + '\n' +
           'Timestamp: '         + position.timestamp                + '\n');*/
-		posStart=position;
+		  //arrayPosi.push(position);
 		  
+		  positionGlobalStart=position;
+		  go=true;
+		  
+		  
+			  
+			  myLoop();
+				  //navigator.geolocation.getCurrentPosition(getPosi, onError);				  
+			  
+			  
+		  
+		  
+		  
+	}
+	function myLoop () {
+	 setTimeout(function () { 
+      
+		
+      if (go) {
+		  navigator.geolocation.getCurrentPosition(add, onError);	
+			
+         myLoop();             
+      }
+			  
+   }, 1000)
 }
-
-function onSuccessEnd(position) {
-   
-	posEnd=position;  
-}
-
-function onError(error) {
-    alert('Failed because: ' + error.message);
+	
+	function getPosi(postion)
+	{
+		arrayPosi.push(position);
 	}
 	
-function GoogleMap(){
-
-this.initialize = function(){
-var map = showMap();
-
-}
-
-var showMap = function(){
-var mapOptions = {
-zoom: 4,
-center: new google.maps.LatLng(-33, 151),
-mapTypeId: google.maps.MapTypeId.ROADMAP
-}
-
-var map = new google.maps.Map(document.getElementById("map_canvas"), mapOptions);
-
-return map;
-}
-}
-
-
-/*
-$(function() {
-$("#target").bind("tap",tapHandler);
-
-function tapHandler(event){
-$(event.target).addClass("tap");
-alert("Hallo");
-}
-});
-//bsp
-var punkt={
-x:10,
-y:5,
-distance:function(a,b)
-{//code
-}
-};*/
+	
+	function onSuccessEnd(position) {
+		  //arrayPosi.push(position);
+		  positionGlobalEnd=position;
+		  calculateRoute();
+		  //alert(getDistanceFromLatLonInKm(getPosi[0].latitude,getPosi[0].longitude,getPosi[getPosi.length-1].latitude,getPosi[getPosi.length-1].longitude));
+	}
+	function onError(error) {
+    alert('Fehlercode: '    + error.code    + '\n' +
+          'message: ' + error.message + '\n');
+	}
+	
+	
+	
