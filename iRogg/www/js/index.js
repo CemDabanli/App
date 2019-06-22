@@ -1,25 +1,5 @@
-/*
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
- */
- 
-
- var directionsDisplay= new google.maps.DirectionsRenderer();
- var directionsService= new google.maps.DirectionsService();
+var directionsDisplay= new google.maps.DirectionsRenderer();
+var directionsService= new google.maps.DirectionsService();
  
 var go;
 var arrayPosi=[];
@@ -27,6 +7,8 @@ var positionGlobalStart;
 var positionGlobalEnd;
 var picture ;
 var time=null;
+var keyCounter=0;
+
 //var storage = window.localStorage;
 //var keyName = window.localStorage.key(0);
 
@@ -42,7 +24,7 @@ var app = {
     },
 
     onDeviceReady: function() {
-        //FOR MY OWN CODE
+        
 		$("#target").bind("tap",app.tapHandler);
 		$("#Stop").bind("tap",app.tapStop);
 		$("#Start").bind("tap",app.tapStart);
@@ -56,12 +38,24 @@ var app = {
 			alert("Hallo");
 	},
 	
+	
+	tapStart:function(event)
+	{
+		deleteArray();
+		navigator.geolocation.getCurrentPosition(onSuccessStart, onError);
+		document.getElementById("Stop").setAttribute("style","visibility:visible");
+		document.getElementById("Speichern").setAttribute("style","visibility:hidden");
+		time =new Date();
+		
+		
+	},
+	
 	tapStop:function(event){
 		go=false;
 		/*alert("REAL "+arrayPosi.length);
-		
+		*/
 		navigator.geolocation.getCurrentPosition(onSuccessEnd, onError);
-		document.getElementById("Speichern").setAttribute("style","visibility:visible");*/
+		document.getElementById("Speichern").setAttribute("style","visibility:visible");
 		navigator.camera.getPicture(onSuccess, onFail, { quality: 50,
 		destinationType: Camera.DestinationType.DATA_URL,
 		targetWidth:55,
@@ -89,28 +83,34 @@ var app = {
 		
 	},
 	
-	tapStart:function(event)
-	{
-		deleteArray();
-		navigator.geolocation.getCurrentPosition(onSuccessStart, onError);
-		document.getElementById("Stop").setAttribute("style","visibility:visible");
-		document.getElementById("Speichern").setAttribute("style","visibility:hidden");
-		time =new Date();
-		
-		
-	},
+	
 	
 	tapSpeichern:function(event)
 	{ 
 		//navigator.geolocation.getCurrentPosition(add, onError);
 		//window.localStorage.setItem(keyName, time);
 		//alert("Gespeichert: "+window.localStorage.getItem(0);)
+		localStorage.setItem("zeit",document.getElementById("map_canvas"));
+		//console.log(localStorage.getItem("zeit"));
+		//element.innerHTML=localStorage.getItem("zeit");
+		var m=document.getElementById("map_canvas");
+		var austausch=localStorage.getItem("zeit");
+		m.innerHTML=austausch;
+		
+		/*localStorage.setItem("key",keyCounter);
+		
+		alert("key alt"+localStorage.getItem("key"));
+		keyCounter=localStorage.getItem("key");
+		keyCounter=parseInt(keyCounter)+1;
+		localStorage.setItem("key",keyCounter);
+		alert("key neu"+localStorage.getItem("key"));*/
+		
 	}
 	
 	
 	
 	
-}
+};
 
 /*function getDistanceFromLatLonInKm(lat1,lon1,lat2,lon2) {
   var R = 6371; //Radius of the earth in km
@@ -200,7 +200,7 @@ var app = {
 	function onSuccess(imageData) {
     picture = "data:image/jpeg;base64," + imageData;
 	go=false;
-		alert("REAL "+arrayPosi.length);
+		//alert("REAL "+arrayPosi.length);
 		
 		navigator.geolocation.getCurrentPosition(onSuccessEnd, onError);
 		document.getElementById("Speichern").setAttribute("style","visibility:visible");
